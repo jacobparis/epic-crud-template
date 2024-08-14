@@ -147,5 +147,6 @@
   },
   "engines": {
     "node": "20"
-  }
+  },
+  "prettier": "@epic-web/config/prettier"
 }
