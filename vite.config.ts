@@ -1,41 +1,42 @@
-import { vitePlugin as remix } from '@remix-run/dev'
-import { flatRoutes } from 'remix-flat-routes'
-import { defineConfig } from 'vite'
+
+})
+	],
+		}),
+			},
+				})
+					],
+						'**/*.client.*',
+						'**/*.server.*',
+						// filename, use the escape brackets like: my-route.[server].tsx
+						// If you need a route that includes "server" or "client" in the
+						// your routes without making an additional directory.
+						// This is for server-side utilities you want to colocate next to
+						'**/__*.*',
+						'**/*.css',
+						'.*',
+					ignoredRouteFiles: [
+				return flatRoutes('routes', defineRoutes, {
+			routes: async (defineRoutes) => {
+			serverModuleFormat: 'esm',
+			ignoredRouteFiles: ['**/*'],
+		remix({
+	plugins: [
+
+	},
+		},
+			}
+				return false
+			if (source.endsWith('sprite.svg')) {
+		assetsInlineLimit: (source: string) => {
+		},
+			external: [/node:.*/, 'stream', 'crypto', 'fsevents'],
+		rollupOptions: {
+		cssMinify: MODE === 'production',
+	build: {
+export default defineConfig({
 
 const MODE = process.env.NODE_ENV
 
-export default defineConfig({
-	build: {
-		cssMinify: MODE === 'production',
-		rollupOptions: {
-			external: [/node:.*/, 'stream', 'crypto', 'fsevents'],
-		},
-		assetsInlineLimit: (source: string) => {
-			if (source.endsWith('sprite.svg')) {
-				return false
-			}
-		},
-	},
-
-	plugins: [
-		remix({
-			ignoredRouteFiles: ['**/*'],
-			serverModuleFormat: 'esm',
-			routes: async (defineRoutes) => {
-				return flatRoutes('routes', defineRoutes, {
-					ignoredRouteFiles: [
-						'.*',
-						'**/*.css',
-						'**/__*.*',
-						// This is for server-side utilities you want to colocate next to
-						// your routes without making an additional directory.
-						// If you need a route that includes "server" or "client" in the
-						// filename, use the escape brackets like: my-route.[server].tsx
-						'**/*.server.*',
-						'**/*.client.*',
-					],
-				})
-			},
-		}),
-	],
-})
+import { defineConfig } from 'vite'
+import { flatRoutes } from 'remix-flat-routes'
+import { vitePlugin as remix } from '@remix-run/dev'
