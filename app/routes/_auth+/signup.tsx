@@ -1,187 +1,191 @@
+import { getFormProps, getInputProps, useForm } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { type SEOHandle } from '@nasa-gcn/remix-seo'
+import * as E from '@react-email/components'
+import {
+	json,
+	redirect,
+	type ActionFunctionArgs,
+	type MetaFunction,
+} from '@remix-run/node'
+import { Form, useActionData, useSearchParams } from '@remix-run/react'
+import { HoneypotInputs } from 'remix-utils/honeypot/react'
+import { z } from 'zod'
+import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
+import { ErrorList, Field } from '#app/components/forms.tsx'
+import { StatusButton } from '#app/components/ui/status-button.tsx'
+import {
+	ProviderConnectionForm,
+	providerNames,
+} from '#app/utils/connections.tsx'
+import { prisma } from '#app/utils/db.server.ts'
+import { sendEmail } from '#app/utils/email.server.ts'
+import { checkHoneypot } from '#app/utils/honeypot.server.ts'
+import { useIsPending } from '#app/utils/misc.tsx'
+import { EmailSchema } from '#app/utils/user-validation.ts'
+import { prepareVerification } from './verify.server.ts'
 
+export const handle: SEOHandle = {
+	getSitemapEntries: () => null,
 }
-	return <GeneralErrorBoundary />
-export function ErrorBoundary() {
 
-}
-	)
-		</div>
-			</div>
-				</ul>
-					))}
-						</li>
-							/>
-								redirectTo={redirectTo}
-								providerName={providerName}
-								type="Signup"
-							<ProviderConnectionForm
-						<li key={providerName}>
-					{providerNames.map((providerName) => (
-				<ul className="mt-5 flex flex-col gap-5 border-b-2 border-t-2 border-border py-3">
-				</Form>
-					</StatusButton>
-						Submit
-					>
-						disabled={isPending}
-						type="submit"
-						status={isPending ? 'pending' : (form.status ?? 'idle')}
-						className="w-full"
-					<StatusButton
-					<ErrorList errors={form.errors} id={form.errorId} />
-					/>
-						errors={fields.email.errors}
-						}}
-							autoComplete: 'email',
-							autoFocus: true,
-							...getInputProps(fields.email, { type: 'email' }),
-						inputProps={{
-						}}
-							children: 'Email',
-							htmlFor: fields.email.id,
-						labelProps={{
-					<Field
-					<HoneypotInputs />
-				<Form method="POST" {...getFormProps(form)}>
-			<div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]">
-			</div>
-				</p>
-					Please enter your email.
-				<p className="mt-3 text-body-md text-muted-foreground">
-				<h1 className="text-h1">Let's start your journey!</h1>
-			<div className="text-center">
-		<div className="container flex flex-col justify-center pb-32 pt-20">
-	return (
+const SignupSchema = z.object({
+	email: EmailSchema,
+})
 
-	})
-		shouldRevalidate: 'onBlur',
-		},
-			return result
-			const result = parseWithZod(formData, { schema: SignupSchema })
-		onValidate({ formData }) {
-		lastResult: actionData?.result,
-		constraint: getZodConstraint(SignupSchema),
-		id: 'signup-form',
-	const [form, fields] = useForm({
-
-	const redirectTo = searchParams.get('redirectTo')
-	const [searchParams] = useSearchParams()
-	const isPending = useIsPending()
-	const actionData = useActionData<typeof action>()
-export default function SignupRoute() {
-
-}
-	return [{ title: 'Sign Up | Epic Notes' }]
-export const meta: MetaFunction = () => {
-
-}
-	)
-		</E.Html>
-			</E.Container>
-				<E.Link href={onboardingUrl}>{onboardingUrl}</E.Link>
-				</p>
-					<E.Text>Or click the link to get started:</E.Text>
-				<p>
-				</p>
-					</E.Text>
-						Here's your verification code: <strong>{otp}</strong>
-					<E.Text>
-				<p>
-				</h1>
-					<E.Text>Welcome to Epic Notes!</E.Text>
-				<h1>
-			<E.Container>
-		<E.Html lang="en" dir="ltr">
-	return (
-}) {
-	otp: string
-	onboardingUrl: string
-}: {
-	otp,
-	onboardingUrl,
-export function SignupEmail({
-
-}
-	}
-		)
-			},
-				status: 500,
-			{
-			},
-				result: submission.reply({ formErrors: [response.error.message] }),
-			{
-		return json(
-	} else {
-		return redirect(redirectTo.toString())
-	if (response.status === 'success') {
-
-	})
-		react: <SignupEmail onboardingUrl={verifyUrl.toString()} otp={otp} />,
-		subject: `Welcome to Epic Notes!`,
-		to: email,
-	const response = await sendEmail({
-
-	})
-		target: email,
-		type: 'onboarding',
-		request,
-		period: 10 * 60,
-	const { verifyUrl, redirectTo, otp } = await prepareVerification({
-	const { email } = submission.value
-	}
-		)
-			{ status: submission.status === 'error' ? 400 : 200 },
-			{ result: submission.reply() },
-		return json(
-	if (submission.status !== 'success') {
-	})
-		async: true,
-		}),
-			}
-				return
-				})
-					message: 'A user already exists with this email',
-					code: z.ZodIssueCode.custom,
-					path: ['email'],
-				ctx.addIssue({
-			if (existingUser) {
-			})
-				select: { id: true },
-				where: { email: data.email },
-			const existingUser = await prisma.user.findUnique({
-		schema: SignupSchema.superRefine(async (data, ctx) => {
-	const submission = await parseWithZod(formData, {
+export async function action({ request }: ActionFunctionArgs) {
+	const formData = await request.formData()
 
 	checkHoneypot(formData)
 
-	const formData = await request.formData()
-export async function action({ request }: ActionFunctionArgs) {
+	const submission = await parseWithZod(formData, {
+		schema: SignupSchema.superRefine(async (data, ctx) => {
+			const existingUser = await prisma.user.findUnique({
+				where: { email: data.email },
+				select: { id: true },
+			})
+			if (existingUser) {
+				ctx.addIssue({
+					path: ['email'],
+					code: z.ZodIssueCode.custom,
+					message: 'A user already exists with this email',
+				})
+				return
+			}
+		}),
+		async: true,
+	})
+	if (submission.status !== 'success') {
+		return json(
+			{ result: submission.reply() },
+			{ status: submission.status === 'error' ? 400 : 200 },
+		)
+	}
+	const { email } = submission.value
+	const { verifyUrl, redirectTo, otp } = await prepareVerification({
+		period: 10 * 60,
+		request,
+		type: 'onboarding',
+		target: email,
+	})
 
-})
-	email: EmailSchema,
-const SignupSchema = z.object({
+	const response = await sendEmail({
+		to: email,
+		subject: `Welcome to Epic Notes!`,
+		react: <SignupEmail onboardingUrl={verifyUrl.toString()} otp={otp} />,
+	})
 
-import { prepareVerification } from './verify.server.ts'
-import { EmailSchema } from '#app/utils/user-validation.ts'
-import { useIsPending } from '#app/utils/misc.tsx'
-import { checkHoneypot } from '#app/utils/honeypot.server.ts'
-import { sendEmail } from '#app/utils/email.server.ts'
-import { prisma } from '#app/utils/db.server.ts'
-} from '#app/utils/connections.tsx'
-	providerNames,
-	ProviderConnectionForm,
-import {
-import { StatusButton } from '#app/components/ui/status-button.tsx'
-import { ErrorList, Field } from '#app/components/forms.tsx'
-import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
-import { z } from 'zod'
-import { HoneypotInputs } from 'remix-utils/honeypot/react'
-import { Form, useActionData, useSearchParams } from '@remix-run/react'
-} from '@remix-run/node'
-	type MetaFunction,
-	type ActionFunctionArgs,
-	redirect,
-	json,
-import {
-import * as E from '@react-email/components'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import { getFormProps, getInputProps, useForm } from '@conform-to/react'
+	if (response.status === 'success') {
+		return redirect(redirectTo.toString())
+	} else {
+		return json(
+			{
+				result: submission.reply({ formErrors: [response.error.message] }),
+			},
+			{
+				status: 500,
+			},
+		)
+	}
+}
+
+export function SignupEmail({
+	onboardingUrl,
+	otp,
+}: {
+	onboardingUrl: string
+	otp: string
+}) {
+	return (
+		<E.Html lang="en" dir="ltr">
+			<E.Container>
+				<h1>
+					<E.Text>Welcome to Epic Notes!</E.Text>
+				</h1>
+				<p>
+					<E.Text>
+						Here's your verification code: <strong>{otp}</strong>
+					</E.Text>
+				</p>
+				<p>
+					<E.Text>Or click the link to get started:</E.Text>
+				</p>
+				<E.Link href={onboardingUrl}>{onboardingUrl}</E.Link>
+			</E.Container>
+		</E.Html>
+	)
+}
+
+export const meta: MetaFunction = () => {
+	return [{ title: 'Sign Up | Epic Notes' }]
+}
+
+export default function SignupRoute() {
+	const actionData = useActionData<typeof action>()
+	const isPending = useIsPending()
+	const [searchParams] = useSearchParams()
+	const redirectTo = searchParams.get('redirectTo')
+
+	const [form, fields] = useForm({
+		id: 'signup-form',
+		constraint: getZodConstraint(SignupSchema),
+		lastResult: actionData?.result,
+		onValidate({ formData }) {
+			const result = parseWithZod(formData, { schema: SignupSchema })
+			return result
+		},
+		shouldRevalidate: 'onBlur',
+	})
+
+	return (
+		<div className="container flex flex-col justify-center pb-32 pt-20">
+			<div className="text-center">
+				<h1 className="text-h1">Let's start your journey!</h1>
+				<p className="mt-3 text-body-md text-muted-foreground">
+					Please enter your email.
+				</p>
+			</div>
+			<div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]">
+				<Form method="POST" {...getFormProps(form)}>
+					<HoneypotInputs />
+					<Field
+						labelProps={{
+							htmlFor: fields.email.id,
+							children: 'Email',
+						}}
+						inputProps={{
+							...getInputProps(fields.email, { type: 'email' }),
+							autoFocus: true,
+							autoComplete: 'email',
+						}}
+						errors={fields.email.errors}
+					/>
+					<ErrorList errors={form.errors} id={form.errorId} />
+					<StatusButton
+						className="w-full"
+						status={isPending ? 'pending' : (form.status ?? 'idle')}
+						type="submit"
+						disabled={isPending}
+					>
+						Submit
+					</StatusButton>
+				</Form>
+				<ul className="mt-5 flex flex-col gap-5 border-b-2 border-t-2 border-border py-3">
+					{providerNames.map((providerName) => (
+						<li key={providerName}>
+							<ProviderConnectionForm
+								type="Signup"
+								providerName={providerName}
+								redirectTo={redirectTo}
+							/>
+						</li>
+					))}
+				</ul>
+			</div>
+		</div>
+	)
+}
+
+export function ErrorBoundary() {
+	return <GeneralErrorBoundary />
+}

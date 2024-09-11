@@ -1,190 +1,194 @@
-
-}
-	return <GeneralErrorBoundary />
-export function ErrorBoundary() {
-
-}
-	)
-		</div>
-			</div>
-				</div>
-					</Link>
-						Back to Login
-					>
-						className="mt-11 text-center text-body-sm font-bold"
-						to="/login"
-					<Link
-					</forgotPassword.Form>
-						</div>
-							</StatusButton>
-								Recover password
-							>
-								disabled={forgotPassword.state !== 'idle'}
-								type="submit"
-								}
-										: (form.status ?? 'idle')
-										? 'pending'
-									forgotPassword.state === 'submitting'
-								status={
-								className="w-full"
-							<StatusButton
-						<div className="mt-6">
-
-						<ErrorList errors={form.errors} id={form.errorId} />
-						</div>
-							/>
-								errors={fields.usernameOrEmail.errors}
-								}}
-									...getInputProps(fields.usernameOrEmail, { type: 'text' }),
-									autoFocus: true,
-								inputProps={{
-								}}
-									children: 'Username or Email',
-									htmlFor: fields.usernameOrEmail.id,
-								labelProps={{
-							<Field
-						<div>
-						<HoneypotInputs />
-					<forgotPassword.Form method="POST" {...getFormProps(form)}>
-				<div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]">
-				</div>
-					</p>
-						No worries, we'll send you reset instructions.
-					<p className="mt-3 text-body-md text-muted-foreground">
-					<h1 className="text-h1">Forgot Password</h1>
-				<div className="text-center">
-			<div className="flex flex-col justify-center">
-		<div className="container pb-32 pt-20">
-	return (
-
-	})
-		shouldRevalidate: 'onBlur',
-		},
-			return parseWithZod(formData, { schema: ForgotPasswordSchema })
-		onValidate({ formData }) {
-		lastResult: forgotPassword.data?.result,
-		constraint: getZodConstraint(ForgotPasswordSchema),
-		id: 'forgot-password-form',
-	const [form, fields] = useForm({
-
-	const forgotPassword = useFetcher<typeof action>()
-export default function ForgotPasswordRoute() {
-
-}
-	return [{ title: 'Password Recovery for Epic Notes' }]
-export const meta: MetaFunction = () => {
-
-}
-	)
-		</E.Html>
-			</E.Container>
-				<E.Link href={onboardingUrl}>{onboardingUrl}</E.Link>
-				</p>
-					<E.Text>Or click the link:</E.Text>
-				<p>
-				</p>
-					</E.Text>
-						Here's your verification code: <strong>{otp}</strong>
-					<E.Text>
-				<p>
-				</h1>
-					<E.Text>Epic Notes Password Reset</E.Text>
-				<h1>
-			<E.Container>
-		<E.Html lang="en" dir="ltr">
-	return (
-}) {
-	otp: string
-	onboardingUrl: string
-}: {
-	otp,
-	onboardingUrl,
-function ForgotPasswordEmail({
-
-}
-	}
-		)
-			{ status: 500 },
-			{ result: submission.reply({ formErrors: [response.error.message] }) },
-		return json(
-	} else {
-		return redirect(redirectTo.toString())
-	if (response.status === 'success') {
-
-	})
-		),
-			<ForgotPasswordEmail onboardingUrl={verifyUrl.toString()} otp={otp} />
-		react: (
-		subject: `Epic Notes Password Reset`,
-		to: user.email,
-	const response = await sendEmail({
-
-	})
-		target: usernameOrEmail,
-		type: 'reset-password',
-		request,
-		period: 10 * 60,
-	const { verifyUrl, redirectTo, otp } = await prepareVerification({
-
-	})
-		select: { email: true, username: true },
-		where: { OR: [{ email: usernameOrEmail }, { username: usernameOrEmail }] },
-	const user = await prisma.user.findFirstOrThrow({
-
-	const { usernameOrEmail } = submission.value
-	}
-		)
-			{ status: submission.status === 'error' ? 400 : 200 },
-			{ result: submission.reply() },
-		return json(
-	if (submission.status !== 'success') {
-	})
-		async: true,
-		}),
-			}
-				return
-				})
-					message: 'No user exists with this username or email',
-					code: z.ZodIssueCode.custom,
-					path: ['usernameOrEmail'],
-				ctx.addIssue({
-			if (!user) {
-			})
-				select: { id: true },
-				},
-					],
-						{ username: data.usernameOrEmail },
-						{ email: data.usernameOrEmail },
-					OR: [
-				where: {
-			const user = await prisma.user.findFirst({
-		schema: ForgotPasswordSchema.superRefine(async (data, ctx) => {
-	const submission = await parseWithZod(formData, {
-	checkHoneypot(formData)
-	const formData = await request.formData()
-export async function action({ request }: ActionFunctionArgs) {
-
-})
-	usernameOrEmail: z.union([EmailSchema, UsernameSchema]),
-const ForgotPasswordSchema = z.object({
-
-import { prepareVerification } from './verify.server.ts'
-import { EmailSchema, UsernameSchema } from '#app/utils/user-validation.ts'
-import { checkHoneypot } from '#app/utils/honeypot.server.ts'
-import { sendEmail } from '#app/utils/email.server.ts'
-import { prisma } from '#app/utils/db.server.ts'
-import { StatusButton } from '#app/components/ui/status-button.tsx'
-import { ErrorList, Field } from '#app/components/forms.tsx'
-import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
-import { z } from 'zod'
-import { HoneypotInputs } from 'remix-utils/honeypot/react'
-import { Link, useFetcher } from '@remix-run/react'
-} from '@remix-run/node'
-	type MetaFunction,
-	type ActionFunctionArgs,
-	redirect,
-	json,
-import {
-import * as E from '@react-email/components'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { type SEOHandle } from '@nasa-gcn/remix-seo'
+import * as E from '@react-email/components'
+import {
+	json,
+	redirect,
+	type ActionFunctionArgs,
+	type MetaFunction,
+} from '@remix-run/node'
+import { Link, useFetcher } from '@remix-run/react'
+import { HoneypotInputs } from 'remix-utils/honeypot/react'
+import { z } from 'zod'
+import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
+import { ErrorList, Field } from '#app/components/forms.tsx'
+import { StatusButton } from '#app/components/ui/status-button.tsx'
+import { prisma } from '#app/utils/db.server.ts'
+import { sendEmail } from '#app/utils/email.server.ts'
+import { checkHoneypot } from '#app/utils/honeypot.server.ts'
+import { EmailSchema, UsernameSchema } from '#app/utils/user-validation.ts'
+import { prepareVerification } from './verify.server.ts'
+
+export const handle: SEOHandle = {
+	getSitemapEntries: () => null,
+}
+
+const ForgotPasswordSchema = z.object({
+	usernameOrEmail: z.union([EmailSchema, UsernameSchema]),
+})
+
+export async function action({ request }: ActionFunctionArgs) {
+	const formData = await request.formData()
+	checkHoneypot(formData)
+	const submission = await parseWithZod(formData, {
+		schema: ForgotPasswordSchema.superRefine(async (data, ctx) => {
+			const user = await prisma.user.findFirst({
+				where: {
+					OR: [
+						{ email: data.usernameOrEmail },
+						{ username: data.usernameOrEmail },
+					],
+				},
+				select: { id: true },
+			})
+			if (!user) {
+				ctx.addIssue({
+					path: ['usernameOrEmail'],
+					code: z.ZodIssueCode.custom,
+					message: 'No user exists with this username or email',
+				})
+				return
+			}
+		}),
+		async: true,
+	})
+	if (submission.status !== 'success') {
+		return json(
+			{ result: submission.reply() },
+			{ status: submission.status === 'error' ? 400 : 200 },
+		)
+	}
+	const { usernameOrEmail } = submission.value
+
+	const user = await prisma.user.findFirstOrThrow({
+		where: { OR: [{ email: usernameOrEmail }, { username: usernameOrEmail }] },
+		select: { email: true, username: true },
+	})
+
+	const { verifyUrl, redirectTo, otp } = await prepareVerification({
+		period: 10 * 60,
+		request,
+		type: 'reset-password',
+		target: usernameOrEmail,
+	})
+
+	const response = await sendEmail({
+		to: user.email,
+		subject: `Epic Notes Password Reset`,
+		react: (
+			<ForgotPasswordEmail onboardingUrl={verifyUrl.toString()} otp={otp} />
+		),
+	})
+
+	if (response.status === 'success') {
+		return redirect(redirectTo.toString())
+	} else {
+		return json(
+			{ result: submission.reply({ formErrors: [response.error.message] }) },
+			{ status: 500 },
+		)
+	}
+}
+
+function ForgotPasswordEmail({
+	onboardingUrl,
+	otp,
+}: {
+	onboardingUrl: string
+	otp: string
+}) {
+	return (
+		<E.Html lang="en" dir="ltr">
+			<E.Container>
+				<h1>
+					<E.Text>Epic Notes Password Reset</E.Text>
+				</h1>
+				<p>
+					<E.Text>
+						Here's your verification code: <strong>{otp}</strong>
+					</E.Text>
+				</p>
+				<p>
+					<E.Text>Or click the link:</E.Text>
+				</p>
+				<E.Link href={onboardingUrl}>{onboardingUrl}</E.Link>
+			</E.Container>
+		</E.Html>
+	)
+}
+
+export const meta: MetaFunction = () => {
+	return [{ title: 'Password Recovery for Epic Notes' }]
+}
+
+export default function ForgotPasswordRoute() {
+	const forgotPassword = useFetcher<typeof action>()
+
+	const [form, fields] = useForm({
+		id: 'forgot-password-form',
+		constraint: getZodConstraint(ForgotPasswordSchema),
+		lastResult: forgotPassword.data?.result,
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: ForgotPasswordSchema })
+		},
+		shouldRevalidate: 'onBlur',
+	})
+
+	return (
+		<div className="container pb-32 pt-20">
+			<div className="flex flex-col justify-center">
+				<div className="text-center">
+					<h1 className="text-h1">Forgot Password</h1>
+					<p className="mt-3 text-body-md text-muted-foreground">
+						No worries, we'll send you reset instructions.
+					</p>
+				</div>
+				<div className="mx-auto mt-16 min-w-full max-w-sm sm:min-w-[368px]">
+					<forgotPassword.Form method="POST" {...getFormProps(form)}>
+						<HoneypotInputs />
+						<div>
+							<Field
+								labelProps={{
+									htmlFor: fields.usernameOrEmail.id,
+									children: 'Username or Email',
+								}}
+								inputProps={{
+									autoFocus: true,
+									...getInputProps(fields.usernameOrEmail, { type: 'text' }),
+								}}
+								errors={fields.usernameOrEmail.errors}
+							/>
+						</div>
+						<ErrorList errors={form.errors} id={form.errorId} />
+
+						<div className="mt-6">
+							<StatusButton
+								className="w-full"
+								status={
+									forgotPassword.state === 'submitting'
+										? 'pending'
+										: (form.status ?? 'idle')
+								}
+								type="submit"
+								disabled={forgotPassword.state !== 'idle'}
+							>
+								Recover password
+							</StatusButton>
+						</div>
+					</forgotPassword.Form>
+					<Link
+						to="/login"
+						className="mt-11 text-center text-body-sm font-bold"
+					>
+						Back to Login
+					</Link>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+export function ErrorBoundary() {
+	return <GeneralErrorBoundary />
+}

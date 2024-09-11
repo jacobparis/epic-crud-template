@@ -1,270 +1,281 @@
+import crypto from 'node:crypto'
+import { createRequestHandler } from '@remix-run/express'
+import { type ServerBuild } from '@remix-run/node'
+import { ip as ipAddress } from 'address'
+import chalk from 'chalk'
+import closeWithGrace from 'close-with-grace'
+import compression from 'compression'
+import express from 'express'
+import rateLimit from 'express-rate-limit'
+import getPort, { portNumbers } from 'get-port'
+import helmet from 'helmet'
+import morgan from 'morgan'
 
-})
-	})
-		server.close((e) => (e ? reject(e) : resolve('ok')))
-	await new Promise((resolve, reject) => {
-closeWithGrace(async () => {
+const MODE = process.env.NODE_ENV ?? 'development'
+const IS_PROD = MODE === 'production'
+const IS_DEV = MODE === 'development'
+const ALLOW_INDEXING = process.env.ALLOW_INDEXING !== 'false'
 
-})
-	)
-		`.trim(),
-${chalk.bold('Press Ctrl+C to stop')}
-${lanUrl ? `${chalk.bold('On Your Network:')}  ${chalk.cyan(lanUrl)}` : ''}
-${chalk.bold('Local:')}            ${chalk.cyan(localUrl)}
-		`
-	console.log(
-
-	}
-		lanUrl = `http://${localIp}:${portToUse}`
-	if (/^10[.]|^172[.](1[6-9]|2[0-9]|3[0-1])[.]|^192[.]168[.]/.test(localIp)) {
-	// https://github.com/facebook/create-react-app/blob/d960b9e38c062584ff6cfb1a70e1512509a966e7/packages/react-dev-utils/WebpackDevServerUtils.js#LL48C9-L54C10
-	// https://en.wikipedia.org/wiki/Private_network#Private_IPv4_address_spaces
-	// Check if the address is a private ip
-	const localIp = ipAddress() ?? 'Unknown'
-	let lanUrl: string | null = null
-	const localUrl = `http://localhost:${portToUse}`
-	console.log(`🚀  We have liftoff!`)
-	}
+const viteDevServer = IS_PROD
+	? undefined
+	: await import('vite').then((vite) =>
+			vite.createServer({
+				server: { middlewareMode: true },
+			}),
 		)
-			),
-				`⚠️  Port ${desiredPort} is not available, using ${portToUse} instead.`,
-			chalk.yellow(
-		console.warn(
-	if (!portAvailable) {
-const server = app.listen(portToUse, () => {
-
-}
-	process.exit(1)
-	console.log(`⚠️ Port ${desiredPort} is not available.`)
-if (!portAvailable && !IS_DEV) {
-const portAvailable = desiredPort === portToUse
-})
-	port: portNumbers(desiredPort, desiredPort + 100),
-const portToUse = await getPort({
-const desiredPort = Number(process.env.PORT || 3000)
-
-)
-	}),
-		build: getBuild,
-		mode: MODE,
-		}),
-			serverBuild: getBuild(),
-			cspNonce: res.locals.cspNonce,
-		getLoadContext: (_: any, res: any) => ({
-	createRequestHandler({
-	'*',
-app.all(
-
-}
-	})
-		next()
-		res.set('X-Robots-Tag', 'noindex, nofollow')
-	app.use((_, res, next) => {
-if (!ALLOW_INDEXING) {
-
-}
-	return build as unknown as ServerBuild
-	// not sure how to make this happy 🤷‍♂️
-			await import('../build/server/index.js')
-			// but it may not exist just yet.
-		: // @ts-ignore this should exist before running the server
-		? viteDevServer.ssrLoadModule('virtual:remix/server-build')
-	const build = viteDevServer
-async function getBuild() {
-
-})
-	return generalRateLimit(req, res, next)
-
-	}
-		return strongestRateLimit(req, res, next)
-	if (req.path.includes('/verify')) {
-	// can have a token in the query string
-	// the verify route is a special case because it's a GET route that
-
-	}
-		return strongRateLimit(req, res, next)
-		}
-			return strongestRateLimit(req, res, next)
-		if (strongPaths.some((p) => req.path.includes(p))) {
-	if (req.method !== 'GET' && req.method !== 'HEAD') {
-	]
-		'/resources/verify',
-		'/resources/login',
-		'/settings/profile',
-		'/reset-password',
-		'/onboarding',
-		'/admin',
-		'/verify',
-		'/signup',
-		'/login',
-	const strongPaths = [
-app.use((req, res, next) => {
-const generalRateLimit = rateLimit(rateLimitDefault)
-
-})
-	max: 100 * maxMultiple,
-	windowMs: 60 * 1000,
-	...rateLimitDefault,
-const strongRateLimit = rateLimit({
-
-})
-	max: 10 * maxMultiple,
-	windowMs: 60 * 1000,
-	...rateLimitDefault,
-const strongestRateLimit = rateLimit({
-
-}
-	},
-		return req.get('fly-client-ip') ?? `${req.ip}`
-	keyGenerator: (req: express.Request) => {
-	// specific header such as cf-connecting-ip
-	// When sitting behind a CDN such as cloudflare, replace fly-client-ip with the CDN
-	// to trusting req.ip when hosted on Fly.io. However, users cannot spoof Fly-Client-Ip.
-	// Malicious users can spoof their IP address which means we should not deault
-	validate: { trustProxy: false },
-	legacyHeaders: false,
-	standardHeaders: true,
-	max: 1000 * maxMultiple,
-	windowMs: 60 * 1000,
-const rateLimitDefault = {
-	!IS_PROD || process.env.PLAYWRIGHT_TEST_BASE_URL ? 10_000 : 1
-const maxMultiple =
-// have to wait for the rate limit to reset between tests.
-// rate limiting because playwright tests are very fast and we don't want to
-// When running tests or running in development, we want to effectively disable
-
-)
-	}),
-		},
-			},
-				'upgrade-insecure-requests': null,
-				],
-					(_, res) => `'nonce-${res.locals.cspNonce}'`,
-					// @ts-expect-error
-				'script-src-attr': [
-				],
-					(_, res) => `'nonce-${res.locals.cspNonce}'`,
-					// @ts-expect-error
-					"'self'",
-					"'strict-dynamic'",
-				'script-src': [
-				'img-src': ["'self'", 'data:'],
-				'frame-ancestors': ['http://localhost:5639'],
-				'frame-src': ["'self'"],
-				'font-src': ["'self'"],
-				].filter(Boolean),
-					"'self'",
-					process.env.SENTRY_DSN ? '*.ingest.sentry.io' : null,
-					MODE === 'development' ? 'ws:' : null,
-				'connect-src': [
-			directives: {
-			reportOnly: true,
-			// NOTE: Remove reportOnly when you're ready to enforce this CSP
-		contentSecurityPolicy: {
-		xFrameOptions: false,
-		crossOriginEmbedderPolicy: true,
-		referrerPolicy: { policy: 'same-origin' },
-		xPoweredBy: false,
-	helmet({
-app.use(
-
-})
-	next()
-	res.locals.cspNonce = crypto.randomBytes(16).toString('hex')
-app.use((_, res, next) => {
-
-)
-	}),
-				req.url?.startsWith('/resources/healthcheck')),
-				req.url?.startsWith('/resources/user-images') ||
-			(req.url?.startsWith('/resources/note-images') ||
-			res.statusCode === 200 &&
-		skip: (req, res) =>
-	morgan('tiny', {
-app.use(
-morgan.token('url', (req) => decodeURIComponent(req.url ?? ''))
-
-})
-	return res.status(404).send('Not found')
-	// So we'll just send a 404 and won't bother calling other middleware.
-	// if we made it past the express.static for these, then we're missing something.
-app.get(['/img/*', '/favicons/*'], (_req, res) => {
-
-}
-	app.use(express.static('build/client', { maxAge: '1h' }))
-	// more aggressive with this caching.
-	// Everything else (like favicon.ico) is cached for an hour. You may want to be
-
-	)
-		express.static('build/client/assets', { immutable: true, maxAge: '1y' }),
-		'/assets',
-	app.use(
-	// Remix fingerprints its assets so we can cache forever.
-} else {
-	app.use(viteDevServer.middlewares)
-if (viteDevServer) {
-
-app.disable('x-powered-by')
-// http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
-
-app.use(compression())
-
-})
-	}
-		next()
-	} else {
-		res.redirect(302, safepath + query)
-		const safepath = req.path.slice(0, -1).replace(/\/+/g, '/')
-		const query = req.url.slice(req.path.length)
-	if (req.path.endsWith('/') && req.path.length > 1) {
-app.get('*', (req, res, next) => {
-// https://github.com/epicweb-dev/epic-stack/discussions/108
-// no ending slashes for SEO reasons
-
-})
-	next()
-	}
-		return
-		res.redirect(`https://${host}${req.originalUrl}`)
-		res.set('X-Forwarded-Proto', 'https')
-	if (proto === 'http') {
-	const host = getHost(req)
-	const proto = req.get('X-Forwarded-Proto')
-
-	if (req.method !== 'GET') return next()
-app.use((req, res, next) => {
-// ensure HTTPS only (X-Forwarded-Proto comes from Fly)
-
-app.set('trust proxy', true)
-// fly is our proxy
-
-	req.get('X-Forwarded-Host') ?? req.get('host') ?? ''
-const getHost = (req: { get: (key: string) => string | undefined }) =>
 
 const app = express()
 
+const getHost = (req: { get: (key: string) => string | undefined }) =>
+	req.get('X-Forwarded-Host') ?? req.get('host') ?? ''
+
+// fly is our proxy
+app.set('trust proxy', true)
+
+// ensure HTTPS only (X-Forwarded-Proto comes from Fly)
+app.use((req, res, next) => {
+	if (req.method !== 'GET') return next()
+	const proto = req.get('X-Forwarded-Proto')
+	const host = getHost(req)
+	if (proto === 'http') {
+		res.set('X-Forwarded-Proto', 'https')
+		res.redirect(`https://${host}${req.originalUrl}`)
+		return
+	}
+	next()
+})
+
+// no ending slashes for SEO reasons
+// https://github.com/epicweb-dev/epic-stack/discussions/108
+app.get('*', (req, res, next) => {
+	if (req.path.endsWith('/') && req.path.length > 1) {
+		const query = req.url.slice(req.path.length)
+		const safepath = req.path.slice(0, -1).replace(/\/+/g, '/')
+		res.redirect(302, safepath + query)
+	} else {
+		next()
+	}
+})
+
+app.use(compression())
+
+// http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
+app.disable('x-powered-by')
+
+if (viteDevServer) {
+	app.use(viteDevServer.middlewares)
+} else {
+	// Remix fingerprints its assets so we can cache forever.
+	app.use(
+		'/assets',
+		express.static('build/client/assets', { immutable: true, maxAge: '1y' }),
+	)
+
+	// Everything else (like favicon.ico) is cached for an hour. You may want to be
+	// more aggressive with this caching.
+	app.use(express.static('build/client', { maxAge: '1h' }))
+}
+
+app.get(['/img/*', '/favicons/*'], (_req, res) => {
+	// if we made it past the express.static for these, then we're missing something.
+	// So we'll just send a 404 and won't bother calling other middleware.
+	return res.status(404).send('Not found')
+})
+
+morgan.token('url', (req) => decodeURIComponent(req.url ?? ''))
+app.use(
+	morgan('tiny', {
+		skip: (req, res) =>
+			res.statusCode === 200 &&
+			(req.url?.startsWith('/resources/note-images') ||
+				req.url?.startsWith('/resources/user-images') ||
+				req.url?.startsWith('/resources/healthcheck')),
+	}),
+)
+
+app.use((_, res, next) => {
+	res.locals.cspNonce = crypto.randomBytes(16).toString('hex')
+	next()
+})
+
+app.use(
+	helmet({
+		xPoweredBy: false,
+		referrerPolicy: { policy: 'same-origin' },
+		crossOriginEmbedderPolicy: true,
+		xFrameOptions: false,
+		contentSecurityPolicy: {
+			// NOTE: Remove reportOnly when you're ready to enforce this CSP
+			reportOnly: true,
+			directives: {
+				'connect-src': [
+					MODE === 'development' ? 'ws:' : null,
+					process.env.SENTRY_DSN ? '*.ingest.sentry.io' : null,
+					"'self'",
+				].filter(Boolean),
+				'font-src': ["'self'"],
+				'frame-src': ["'self'"],
+				'frame-ancestors': ['http://localhost:5639'],
+				'img-src': ["'self'", 'data:'],
+				'script-src': [
+					"'strict-dynamic'",
+					"'self'",
+					// @ts-expect-error
+					(_, res) => `'nonce-${res.locals.cspNonce}'`,
+				],
+				'script-src-attr': [
+					// @ts-expect-error
+					(_, res) => `'nonce-${res.locals.cspNonce}'`,
+				],
+				'upgrade-insecure-requests': null,
+			},
+		},
+	}),
+)
+
+// When running tests or running in development, we want to effectively disable
+// rate limiting because playwright tests are very fast and we don't want to
+// have to wait for the rate limit to reset between tests.
+const maxMultiple =
+	!IS_PROD || process.env.PLAYWRIGHT_TEST_BASE_URL ? 10_000 : 1
+const rateLimitDefault = {
+	windowMs: 60 * 1000,
+	max: 1000 * maxMultiple,
+	standardHeaders: true,
+	legacyHeaders: false,
+	validate: { trustProxy: false },
+	// Malicious users can spoof their IP address which means we should not deault
+	// to trusting req.ip when hosted on Fly.io. However, users cannot spoof Fly-Client-Ip.
+	// When sitting behind a CDN such as cloudflare, replace fly-client-ip with the CDN
+	// specific header such as cf-connecting-ip
+	keyGenerator: (req: express.Request) => {
+		return req.get('fly-client-ip') ?? `${req.ip}`
+	},
+}
+
+const strongestRateLimit = rateLimit({
+	...rateLimitDefault,
+	windowMs: 60 * 1000,
+	max: 10 * maxMultiple,
+})
+
+const strongRateLimit = rateLimit({
+	...rateLimitDefault,
+	windowMs: 60 * 1000,
+	max: 100 * maxMultiple,
+})
+
+const generalRateLimit = rateLimit(rateLimitDefault)
+app.use((req, res, next) => {
+	const strongPaths = [
+		'/login',
+		'/signup',
+		'/verify',
+		'/admin',
+		'/onboarding',
+		'/reset-password',
+		'/settings/profile',
+		'/resources/login',
+		'/resources/verify',
+	]
+	if (req.method !== 'GET' && req.method !== 'HEAD') {
+		if (strongPaths.some((p) => req.path.includes(p))) {
+			return strongestRateLimit(req, res, next)
+		}
+		return strongRateLimit(req, res, next)
+	}
+
+	// the verify route is a special case because it's a GET route that
+	// can have a token in the query string
+	if (req.path.includes('/verify')) {
+		return strongestRateLimit(req, res, next)
+	}
+
+	return generalRateLimit(req, res, next)
+})
+
+async function getBuild() {
+	try {
+		const build = viteDevServer
+			? await viteDevServer.ssrLoadModule('virtual:remix/server-build')
+			: // @ts-expect-error - the file might not exist yet but it will
+				// eslint-disable-next-line import/no-unresolved
+				await import('../build/server/index.js')
+
+		return { build: build as unknown as ServerBuild, error: null }
+	} catch (error) {
+		// Catch error and return null to make express happy and avoid an unrecoverable crash
+		console.error('Error creating build:', error)
+		return { error: error, build: null as unknown as ServerBuild }
+	}
+}
+
+if (!ALLOW_INDEXING) {
+	app.use((_, res, next) => {
+		res.set('X-Robots-Tag', 'noindex, nofollow')
+		next()
+	})
+}
+
+app.all(
+	'*',
+	createRequestHandler({
+		getLoadContext: (_: any, res: any) => ({
+			cspNonce: res.locals.cspNonce,
+			serverBuild: getBuild(),
+		}),
+		mode: MODE,
+		build: async () => {
+			const { error, build } = await getBuild()
+			// gracefully "catch" the error
+			if (error) {
+				throw error
+			}
+			return build
+		},
+	}),
+)
+
+const desiredPort = Number(process.env.PORT || 3000)
+const portToUse = await getPort({
+	port: portNumbers(desiredPort, desiredPort + 100),
+})
+const portAvailable = desiredPort === portToUse
+if (!portAvailable && !IS_DEV) {
+	console.log(`⚠️ Port ${desiredPort} is not available.`)
+	process.exit(1)
+}
+
+const server = app.listen(portToUse, () => {
+	if (!portAvailable) {
+		console.warn(
+			chalk.yellow(
+				`⚠️  Port ${desiredPort} is not available, using ${portToUse} instead.`,
+			),
 		)
-			}),
-				server: { middlewareMode: true },
-			vite.createServer({
-	: await import('vite').then((vite) =>
-	? undefined
-const viteDevServer = IS_PROD
+	}
+	console.log(`🚀  We have liftoff!`)
+	const localUrl = `http://localhost:${portToUse}`
+	let lanUrl: string | null = null
+	const localIp = ipAddress() ?? 'Unknown'
+	// Check if the address is a private ip
+	// https://en.wikipedia.org/wiki/Private_network#Private_IPv4_address_spaces
+	// https://github.com/facebook/create-react-app/blob/d960b9e38c062584ff6cfb1a70e1512509a966e7/packages/react-dev-utils/WebpackDevServerUtils.js#LL48C9-L54C10
+	if (/^10[.]|^172[.](1[6-9]|2[0-9]|3[0-1])[.]|^192[.]168[.]/.test(localIp)) {
+		lanUrl = `http://${localIp}:${portToUse}`
+	}
 
-const ALLOW_INDEXING = process.env.ALLOW_INDEXING !== 'false'
-const IS_DEV = MODE === 'development'
-const IS_PROD = MODE === 'production'
-const MODE = process.env.NODE_ENV ?? 'development'
+	console.log(
+		`
+${chalk.bold('Local:')}            ${chalk.cyan(localUrl)}
+${lanUrl ? `${chalk.bold('On Your Network:')}  ${chalk.cyan(lanUrl)}` : ''}
+${chalk.bold('Press Ctrl+C to stop')}
+		`.trim(),
+	)
+})
 
-import morgan from 'morgan'
-import helmet from 'helmet'
-import getPort, { portNumbers } from 'get-port'
-import rateLimit from 'express-rate-limit'
-import express from 'express'
-import compression from 'compression'
-import closeWithGrace from 'close-with-grace'
-import chalk from 'chalk'
-import { ip as ipAddress } from 'address'
-import { type ServerBuild } from '@remix-run/node'
-import { createRequestHandler } from '@remix-run/express'
-import crypto from 'crypto'
+closeWithGrace(async () => {
+	await new Promise((resolve, reject) => {
+		server.close((e) => (e ? reject(e) : resolve('ok')))
+	})
+})
