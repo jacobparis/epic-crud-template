@@ -1,4 +1,4 @@
-import { PassThrough } from 'node:stream'
+import { PassThrough } from 'stream'
 import {
 	createReadableStreamFromReadable,
 	type LoaderFunctionArgs,
