@@ -10,9 +10,11 @@ const MODE = process.env.NODE_ENV
 export default defineConfig({
 	build: {
 		cssMinify: MODE === 'production',
+
 		rollupOptions: {
 			external: [/node:.*/, 'fsevents'],
 		},
+
 		assetsInlineLimit: (source: string) => {
 			if (
 				source.endsWith('sprite.svg') ||
@@ -23,7 +25,13 @@ export default defineConfig({
 			}
 		},
 	},
-
+	server: {
+		port: Number(process.env.PORT) || 3000,
+		host: process.env.HOST || 'localhost',
+		fs: {
+			allow: ['..'],
+		},
+	},
 	plugins: [
 		envOnlyMacros(),
 		// it would be really nice to have this enabled in tests, but we'll have to
@@ -40,33 +48,33 @@ export default defineConfig({
 								'**/*.css',
 								'**/*.test.{js,jsx,ts,tsx}',
 								'**/__*.*',
-								// This is for server-side utilities you want to colocate next to
-								// your routes without making an additional directory.
-								// If you need a route that includes "server" or "client" in the
-								// filename, use the escape brackets like: my-route.[server].tsx
+								// This is for server-side utilities you want to colocate
+								// next to your routes without making an additional
+								// directory. If you need a route that includes "server" or
+								// "client" in the filename, use the escape brackets like:
+								// my-route.[server].tsx
 								'**/*.server.*',
 								'**/*.client.*',
 							],
 						})
 					},
-			  }),
+				}),
 		process.env.SENTRY_AUTH_TOKEN
 			? sentryVitePlugin({
 					disable: MODE !== 'production',
-					sourceMaps: {
-						include: ['./build/client'],
-					},
-					release: process.env.SENTRY_RELEASE,
-					setCommits: {
-						auto: true,
-					},
-					debug: true,
 					org: process.env.SENTRY_ORG,
 					project: process.env.SENTRY_PROJECT,
 					authToken: process.env.SENTRY_AUTH_TOKEN,
-					telemetry: false,
-					dryRun: process.env.SENTRY_DRY_RUN === 'true',
-			  })
+					release: {
+						name: process.env.COMMIT_SHA,
+					},
+					sourcemaps: {
+						filesToDeleteAfterUpload: await glob([
+							'./build/client/**/*.js.map',
+							'./build/server/**/*.js.map',
+						]),
+					},
+				})
 			: null,
 	],
 	test: {
